@@ -18,9 +18,16 @@ func ezPanic(err error) {
 }
 
 type arguments struct {
-	Owner string `arg:"positional,required" help:"Repository owner"`
-	Repo  string `arg:"positional,required" help:"Repository name"`
-	Terse bool   `arg:"-t" help:"Minimal output mode"`
+	Owner    string `arg:"positional,required" help:"Repository owner"`
+	Repo     string `arg:"positional,required" help:"Repository name"`
+	Username string `arg:"-u" help:"Username for authenticated requests"`
+	Password string `arg:"-p" help:"Password for authenticated requests, if you have 2fa, use a Personal Access Token"`
+	OAuth    string `arg:"-a" help:"OAuth token for authenticated requests, you can also use a Personal Access Token"`
+	Terse    bool   `arg:"-t" help:"Minimal output mode"`
+}
+
+func (arguments) Version() string {
+	return "ghdl 1.0.0"
 }
 
 type releaseAsset struct {
@@ -33,7 +40,17 @@ type releaseResponse struct {
 
 func main() {
 	var args arguments
-	arg.MustParse(&args)
+	parsed := arg.MustParse(&args)
+
+	if (args.OAuth != "" && args.Username != "") ||
+		(args.OAuth != "" && args.Password != "") {
+		parsed.Fail("Use OAauth OR basic Authentication, not both.")
+	}
+
+	if (args.Username != "" && args.Password == "") ||
+		(args.Password != "" && args.Username == "") {
+		parsed.Fail("Both username and password must be provided when making authenticated requests")
+	}
 
 	repoAPIURL := fmt.Sprintf("https://api.github.com/repos/%v/%v/releases", args.Owner, args.Repo)
 
@@ -41,8 +58,21 @@ func main() {
 		fmt.Printf("Fetching release downloads for https://github.com/%v/%v\n", args.Owner, args.Repo)
 	}
 
-	response, err := http.Get(repoAPIURL)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", repoAPIURL, nil)
+	if args.Username != "" && args.Password != "" {
+		req.SetBasicAuth(args.Username, args.Password)
+	} else if args.OAuth != "" {
+		req.Header.Set("Authorization", "token "+args.OAuth)
+	}
+	response, err := client.Do(req)
 	ezPanic(err)
+
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		fmt.Printf("Failed to fetch release information. Statuscode: %v\n", response.StatusCode)
+		os.Exit(1)
+	}
+
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)

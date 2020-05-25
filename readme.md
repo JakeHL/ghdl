@@ -1,8 +1,6 @@
 # ghdl
 A simple cli tool for working out how many times your github release assets have been downloaded in total.
 
-**Warning:** This tool is early stages and usage will more than likely change.
-
 currently only works on public repositories.
 
 ### Installation
@@ -13,13 +11,19 @@ go get github.com/jakehl/ghdl
 ### Usage
 
 ```bash
-Usage: ghdl [--terse] OWNER REPO
+Usage: ghdl [--username USERNAME] [--password PASSWORD] [--oauth OAUTH] [--terse] OWNER REPO
 
 Positional arguments:
   OWNER                  Repository owner
   REPO                   Repository name
 
 Options:
+  --username USERNAME, -u USERNAME
+                         Username for authenticated requests
+  --password PASSWORD, -p PASSWORD
+                         Password for authenticated requests, if you have 2fa, use a Personal Access Token
+  --oauth OAUTH, -a OAUTH
+                         OAuth token for authenticated requests, you can also use a Personal Access Token
   --terse, -t            Minimal output mode
   --help, -h             display this help and exit
 ```
