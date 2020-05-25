@@ -34,5 +34,5 @@ Assets have been downloaded 1994 times
 ```
 
 ### TODO
-- Add a flag for simple output
+- ~~Add a flag for simple output~~
 - Add auth for private repositories
