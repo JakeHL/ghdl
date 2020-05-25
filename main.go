@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 )
 
 func ezPanic(err error) {
 	if err != nil {
-		log.Fatal("There was an error fetching data from github")
+		fmt.Print("There was an error fetching data from github\n")
+		os.Exit(1)
 	}
 }
 
@@ -24,17 +24,17 @@ type releaseResponse struct {
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Print("User must be specified\n")
+		os.Exit(1)
+	}
 	user := os.Args[1]
-	if user == "" {
-		log.Fatal("User must be specified")
-		return
-	}
 
-	repo := os.Args[2]
-	if repo == "" {
-		log.Fatal("Repository must be specified")
-		return
+	if len(os.Args) < 3 {
+		fmt.Print("Repository must be specified\n")
+		os.Exit(1)
 	}
+	repo := os.Args[2]
 
 	repoAPIURL := fmt.Sprintf("https://api.github.com/repos/%v/%v/releases", user, repo)
 
