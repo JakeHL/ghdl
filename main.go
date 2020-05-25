@@ -38,7 +38,7 @@ func main() {
 
 	repoAPIURL := fmt.Sprintf("https://api.github.com/repos/%v/%v/releases", user, repo)
 
-	fmt.Printf("Fethcing release downloads for https://github.com/%v/%v\n", user, repo)
+	fmt.Printf("Fetching release downloads for https://github.com/%v/%v\n", user, repo)
 
 	response, err := http.Get(repoAPIURL)
 	ezPanic(err)
