@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/alexflint/go-arg"
 )
 
 func ezPanic(err error) {
@@ -13,6 +15,12 @@ func ezPanic(err error) {
 		fmt.Print("There was an error fetching data from github\n")
 		os.Exit(1)
 	}
+}
+
+type arguments struct {
+	Owner string `arg:"positional,required" help:"Repository owner"`
+	Repo  string `arg:"positional,required" help:"Repository name"`
+	Terse bool   `arg:"-t" help:"Minimal output mode"`
 }
 
 type releaseAsset struct {
@@ -24,21 +32,14 @@ type releaseResponse struct {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Print("User must be specified\n")
-		os.Exit(1)
+	var args arguments
+	arg.MustParse(&args)
+
+	repoAPIURL := fmt.Sprintf("https://api.github.com/repos/%v/%v/releases", args.Owner, args.Repo)
+
+	if !args.Terse {
+		fmt.Printf("Fetching release downloads for https://github.com/%v/%v\n", args.Owner, args.Repo)
 	}
-	user := os.Args[1]
-
-	if len(os.Args) < 3 {
-		fmt.Print("Repository must be specified\n")
-		os.Exit(1)
-	}
-	repo := os.Args[2]
-
-	repoAPIURL := fmt.Sprintf("https://api.github.com/repos/%v/%v/releases", user, repo)
-
-	fmt.Printf("Fetching release downloads for https://github.com/%v/%v\n", user, repo)
 
 	response, err := http.Get(repoAPIURL)
 	ezPanic(err)
@@ -57,5 +58,9 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Assets have been downloaded %v times", totalDownloads)
+	if args.Terse {
+		fmt.Print(totalDownloads)
+	} else {
+		fmt.Printf("Assets have been downloaded %v times", totalDownloads)
+	}
 }

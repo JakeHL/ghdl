@@ -13,7 +13,15 @@ go get github.com/jakehl/ghdl
 ### Usage
 
 ```bash
-ghdl <user/organisation> <repository>
+Usage: ghdl [--terse] OWNER REPO
+
+Positional arguments:
+  OWNER                  Repository owner
+  REPO                   Repository name
+
+Options:
+  --terse, -t            Minimal output mode
+  --help, -h             display this help and exit
 ```
 Example
 ```bash
