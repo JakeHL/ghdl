@@ -1,7 +1,7 @@
 # ghdl
 A simple cli tool for working out how many times your github release assets have been downloaded in total.
 
-currently only works on public repositories.
+You must use auth for private repositories
 
 ### Installation
 ```bash
